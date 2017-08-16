@@ -5,3 +5,4 @@ config.*
 stocklist
 Archive/*
 Archive
+research_public/*
