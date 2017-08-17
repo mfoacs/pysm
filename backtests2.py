@@ -28,27 +28,14 @@ from sklearn import svm
 import quandl
 import config
 
+# On Quantopian we just used talib.MACD
+# Here we have to define it because talib doesn't integrate with Conda env.
+# Other studies are available on studies.py
+from studies import MACD
+
 quandl.ApiConfig.api_key = config.API_CONFIG_KEY
 
 today = date.today()
-
-
-def MACD(df, n_fast, n_slow):
-    '''Moving Average Conv.Divergence'''
-    EMAfast = pd.Series(
-        pd.ewma(df['Close'], span=n_fast, min_periods=n_slow - 1))
-    EMAslow = pd.Series(
-        pd.ewma(df['Close'], span=n_slow, min_periods=n_slow - 1))
-    MACD = pd.Series(EMAfast - EMAslow, name='MACD_' +
-                     str(n_fast) + '_' + str(n_slow))
-    MACDsign = pd.Series(pd.ewma(MACD, span=9, min_periods=8),
-                         name='MACDsign_' + str(n_fast) + '_' + str(n_slow))
-    MACDdiff = pd.Series(MACD - MACDsign, name='MACDdiff_' +
-                         str(n_fast) + '_' + str(n_slow))
-    df = df.join(MACD)
-    df = df.join(MACDsign)
-    df = df.join(MACDdiff)
-    return df
 
 
 def initialize(context):
@@ -202,28 +189,6 @@ def cut_losses(context,data):
                     order_target_percent(stock, 0)
         except Exception as e:
             print(e)
-
-
-
-# Define the MACD function
-def macd(prices, fastperiod=12, slowperiod=26, signalperiod=9):
-    '''
-    Function to return the difference between the most recent
-    MACD value and MACD signal. Positive values are long
-    position entry signals
-
-    optional args:
-        fastperiod = 12
-        slowperiod = 26
-        signalperiod = 9
-
-    Returns: macd - signal
-    '''
-    macd, signal, hist = MACD(prices,
-                                    fastperiod=fastperiod,
-                                    slowperiod=slowperiod,
-                                    signalperiod=signalperiod)
-    return macd[-1] - signal[-1]
 
 
 def predict_prices(dates, prices, x):

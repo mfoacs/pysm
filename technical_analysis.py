@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Aug 15 23:23:23 2017
-
+Created on Tue Aug 15 23:23:23 201
 @author: mda
+
+Based on the Quantopian notebook "Plot Candlestick Charts in Reserach"
 """
 
 import matplotlib.pyplot as plt
