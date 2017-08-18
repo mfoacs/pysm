@@ -40,15 +40,20 @@ today = date.today()
 
 def initialize(context):
     ''' Initialize global vars'''
-    context.long_leverage = 0.5
-    context.short_leverage = -0.5
+    context.long_leverage = 0.1
+    context.short_leverage = -0.9
     context.returns_lookback = 16
     context.pct_per_stock = 0.5
+    
+    context.fastperiod = 12
+    context.slowperiod = 26
+    context.signalperiod = 9
+    context.bar_count = 90
 
     # Create and attach our pipeline (dynamic stock selector), defined below.
     attach_pipeline(make_pipeline(context),
                     'mean_reversion_macd_learning')
-
+    
 
 def make_pipeline(context):
     """
@@ -169,14 +174,24 @@ def cut_losses(context,data):
 
     """
     
-    for stock in context.portfolio.positions:   
+    for stock in context.portfolio.positions:
         
-        prices = data.history(stock,fields='close',bar_count=200,frequency='1m')
-        hist = data.history(stock,fields=['price', 'open', 'high', 'low', 'close', 'volume'],
-                          bar_count=200,frequency='1d')
+        #current_position = context.portfolio.positions[stock].amount
+        prices = data.history(stock,fields='close',
+                              bar_count=context.bar_count,
+                              frequency='1m')
+        
+        hist = data.history(stock,
+                            fields=['price', 'open', 'high', 'low', 'close', 'volume'],
+                            bar_count=context.bar_count,
+                            frequency='1d')
 
         try:
-            macd = MACD(prices, fastperiod=12, slowperiod=26, signalperiod=9)
+            macd = MACD(prices,
+                        fastperiod=context.fastperiod,
+                        slowperiod=context.slowperiod, 
+                        signalperiod=context.signalperiod)
+            
             price = context.portfolio.positions[stock].last_sale_price            
             predicted = predict_prices(hist['close'], prices, context.returns_lookback)
             
