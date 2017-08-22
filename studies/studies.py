@@ -1,7 +1,4 @@
-import numpy
 import pandas as pd
-import math as m
-
 
 # Moving Average
 def MA(df, n):

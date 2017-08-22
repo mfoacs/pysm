@@ -11,16 +11,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import talib
-import pytz
-import matplotlib.ticker as mticker
-import matplotlib.dates as mdates
 from matplotlib.finance import quotes_historical_yahoo_ochl
 from datetime import date
 from matplotlib.dates import DateFormatter, WeekdayLocator,\
     DayLocator, MONDAY
 import matplotlib
-import datetime
-from matplotlib.finance import date2num
 from pattern_analysis import plotstock
 
 matplotlib.rcParams.update({'font.size': 8})
@@ -285,8 +280,8 @@ def plot_candles(pricing, title=None,
     ax3 = subplots[2]
     # compute the MACD indicator
     fillcolor = '#3771C8'
-    nslow = 26
-    nfast = 12
+    emaslow = 26
+    emafast = 12
     nema = 9
     emaslow, emafast, macd = computeMACD(close_price)
     ema9 = ExpMovingAverage(macd, nema)

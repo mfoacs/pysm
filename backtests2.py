@@ -9,33 +9,26 @@
         2. integrate correlations of stock_map.py (covariance matrix)
 """
 
-
-from datetime import date
-import numpy as np
-import pandas as pd
-import math as m
-
+# Zipline imports
 from zipline.pipeline import Pipeline
 from zipline.pipeline.factors import AverageDollarVolume, Returns
-from zipline.pipeline.data import USEquityPricing
 from zipline.api import (order, record, symbol,
                          set_commission, attach_pipeline,
                          pipeline_output,
                          schedule_function,
                          time_rules, date_rules, order_target_percent)
+from zipline.finance import commission
 
+# External imports
+from datetime import date
+import numpy as np
 from sklearn import svm
-import quandl
-import config
+from talib import MACD
 
 # On Quantopian we just used talib.MACD
-# Here we have to define it because talib doesn't integrate with Conda env.
-# Other studies are available on studies.py
-from studies import MACD
+# With CONDA we import our own from studies because talib isn't available (Python 3.6*).
 
-quandl.ApiConfig.api_key = config.API_CONFIG_KEY
-
-today = date.today()
+# from studies import macd
 
 
 def initialize(context):
@@ -49,6 +42,18 @@ def initialize(context):
     context.slowperiod = 26
     context.signalperiod = 9
     context.bar_count = 90
+
+    set_commission(commission.PerShare(cost=0.0014, min_trade_cost=1))
+    
+    # Rebalance on the first trading day of each week at 12AM.
+    schedule_function(rebalance, date_rules.week_start(days_offset=0),time_rules.market_open(hours=0.5))
+    
+    # Rebalance mid-week
+    schedule_function(cut_losses, date_rules.week_start(days_offset=2),time_rules.market_open(hours=0.5))
+
+    # Record tracking variables at the end of each day.
+    schedule_function(record, date_rules.every_day(),time_rules.market_open(minutes=1))
+
 
     # Create and attach our pipeline (dynamic stock selector), defined below.
     attach_pipeline(make_pipeline(context),

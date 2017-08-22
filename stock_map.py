@@ -78,9 +78,9 @@ from six.moves.urllib.request import urlopen
 from six.moves.urllib.parse import urlencode
 from sklearn import cluster, covariance, manifold
 import quandl
-import config
+from quandl_config import API_CONFIG_KEY
 
-quandl.ApiConfig.api_key = config.API_CONFIG_KEY
+quandl.ApiConfig.api_key = API_CONFIG_KEY
 
 rcParams.update({'font.size': 8})
 
@@ -172,7 +172,9 @@ longlist = [
     'TXN', 'STX', 'WDC'
 ]
 
-symbol_dict = make_symbol_dic(longlist, t=list)
+pipeline = ['LB', 'FL', 'COL','VXX', 'TVIX', 'XIV', 'SVXY', 'UVXY', 'SNAP', 'AMD']
+
+symbol_dict = make_symbol_dic(pipeline, t=list)
 symbols, names = np.array(list(symbol_dict.items())).T
 
 '''
