@@ -1,7 +1,7 @@
 __pycache__/*
 __*__.py
 *.csv
-config.*
+quandl_config.*
 stocklist
 Archive/*
 Archive
